@@ -1,0 +1,38 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background-color: #f9f9f9;
+}
+
+body {
+  margin: 0;
+  background-color: #f9f9f9;
+  color: #111111;
+  font-family: var(--font-inter), sans-serif;
+  line-height: 1.3;
+}
+
+main {
+  width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+::-moz-selection {
+  background: rgba(155, 168, 141, 0.4);
+}
+
+::selection {
+  background: rgba(155, 168, 141, 0.4);
+}
+
