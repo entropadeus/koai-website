@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import type { MotionProps } from 'framer-motion';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 
@@ -19,12 +20,16 @@ export function AnimatedButton({
   children,
   className = ''
 }: AnimatedButtonProps) {
-  const scope = useRef<HTMLElement | null>(null);
+  const scopeRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
+
+  const setScope = useCallback((node: HTMLButtonElement | HTMLAnchorElement | null) => {
+    scopeRef.current = node;
+  }, []);
 
   const letters = useMemo(() => Array.from(children), [children]);
 
   useEffect(() => {
-    const element = scope.current;
+    const element = scopeRef.current;
     if (!element) {
       return;
     }
@@ -58,36 +63,28 @@ export function AnimatedButton({
         stagger: { each: 0.015 }
       });
 
-    const handleFocus = handleEnter;
-    const handleBlur = handleLeave;
-
     element.addEventListener('pointerenter', handleEnter);
     element.addEventListener('pointerleave', handleLeave);
-    element.addEventListener('focus', handleFocus);
-    element.addEventListener('blur', handleBlur);
+    element.addEventListener('focus', handleEnter);
+    element.addEventListener('blur', handleLeave);
 
     return () => {
       element.removeEventListener('pointerenter', handleEnter);
       element.removeEventListener('pointerleave', handleLeave);
-      element.removeEventListener('focus', handleFocus);
-      element.removeEventListener('blur', handleBlur);
+      element.removeEventListener('focus', handleEnter);
+      element.removeEventListener('blur', handleLeave);
       gsap.killTweensOf(rollers);
     };
-  }, []);
+  }, [as, letters]);
 
   const baseClasses =
     'inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium tracking-wide transition-transform duration-300';
-
   const computedClass = className ? `${baseClasses} ${className}` : baseClasses;
 
-  const Tag = as === 'a' ? motion.a : motion.button;
-
-  const sharedProps = {
-    className: computedClass,
+  const motionInteractions: Pick<MotionProps, 'whileHover' | 'whileTap'> = {
     whileHover: { scale: 1.06, opacity: 0.92 },
-    whileTap: { scale: 0.97 },
-    ref: scope
-  } as const;
+    whileTap: { scale: 0.97 }
+  };
 
   const content = (
     <span className="pointer-events-none inline-flex items-center justify-center gap-[0.08em] leading-none">
@@ -107,15 +104,27 @@ export function AnimatedButton({
 
   if (as === 'a') {
     return (
-      <Tag href={href} {...sharedProps}>
+      <motion.a
+        href={href}
+        ref={setScope}
+        className={computedClass}
+        {...motionInteractions}
+      >
         {content}
-      </Tag>
+      </motion.a>
     );
   }
 
   return (
-    <Tag type={type} {...sharedProps}>
+    <motion.button
+      type={type}
+      ref={setScope}
+      className={computedClass}
+      {...motionInteractions}
+    >
       {content}
-    </Tag>
+    </motion.button>
   );
 }
+
+

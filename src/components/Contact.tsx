@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   useState,
@@ -7,11 +7,13 @@ import {
   type InputHTMLAttributes,
   type ReactElement,
   type TextareaHTMLAttributes
-} from 'react';
-import { motion } from 'framer-motion';
+} from "react";
+import { motion } from "framer-motion";
 
-import { fadeUp } from '@/lib/motion';
-import { AnimatedButton } from '@/components/AnimatedButton';
+import { fadeUp } from "@/lib/motion";
+import { AnimatedButton } from "@/components/AnimatedButton";
+
+type FieldElement = HTMLInputElement | HTMLTextAreaElement;
 
 type UnderlineChild = ReactElement<
   InputHTMLAttributes<HTMLInputElement> | TextareaHTMLAttributes<HTMLTextAreaElement>
@@ -67,17 +69,23 @@ export function Contact() {
 function UnderlineField({ id, label, children }: UnderlineFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
 
-  const handleFocus = (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleFocus = (event: FocusEvent<FieldElement>) => {
     setIsFocused(true);
-    children.props.onFocus?.(event);
+    const focusHandler = children.props.onFocus as
+      | ((event: FocusEvent<FieldElement>) => void)
+      | undefined;
+    focusHandler?.(event);
   };
 
-  const handleBlur = (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleBlur = (event: FocusEvent<FieldElement>) => {
     setIsFocused(false);
-    children.props.onBlur?.(event);
+    const blurHandler = children.props.onBlur as
+      | ((event: FocusEvent<FieldElement>) => void)
+      | undefined;
+    blurHandler?.(event);
   };
 
-  const baseClass = 'w-full border-none bg-transparent text-base text-ink placeholder:text-ink/30 focus:outline-none';
+  const baseClass = "w-full border-none bg-transparent text-base text-ink placeholder:text-ink/30 focus:outline-none";
   const mergedClass = children.props.className
     ? `${baseClass} ${children.props.className}`
     : baseClass;
